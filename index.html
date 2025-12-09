@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Goodeyka · Портфолио</title>
+    <meta
+      name="description"
+      content="Портфолио проектов Goodeyka с акцентом на будущее digital-продуктов."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <canvas id="orbital-bg" aria-hidden="true"></canvas>
+    <header class="shell">
+      <nav class="nav">
+        <div class="logo">Goodeyka / 2025</div>
+        <div class="nav-links">
+          <a href="#projects">Проекты</a>
+          <a href="#about">Обо мне</a>
+          <a href="#contact">Контакты</a>
+        </div>
+        <button id="theme-toggle" class="neon-btn" aria-label="Сменить тему">
+          ⚡
+        </button>
+      </nav>
+      <div class="hero">
+        <p class="eyebrow">Future-forward Digital Craft</p>
+        <h1>
+          Создаю продукты, которые ощущаются как
+          <span class="accent">2025 уже сегодня</span>
+        </h1>
+        <p class="lead">
+          Комплексная разработка и дизайн: от иммерсивных мобильных приложений до
+          веб-платформ с пост-неоморфной эстетикой.
+        </p>
+        <div class="cta">
+          <a class="neon-btn primary" href="#projects">Показать работы</a>
+          <a class="neon-btn ghost" href="#contact">Связаться</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="shell">
+      <section id="projects" class="panel">
+        <div class="panel-head">
+          <p class="eyebrow">Ключевые кейсы</p>
+          <h2>Проекты, задающие темп</h2>
+        </div>
+        <div class="projects-grid">
+          <article class="project-card">
+            <div class="card-top">
+              <span class="chip">XR-Commerce</span>
+              <span class="chip ghost">2025</span>
+            </div>
+            <h3>MetaMarket</h3>
+            <p>
+              Платформа дополненной реальности для подборки товаров. Прогнозный ИИ,
+              интеграция с жестами и spatial-аудио.
+            </p>
+            <ul>
+              <li>Design System · XR UX</li>
+              <li>Unity + WebXR, Kotlin backend</li>
+              <li>Рост конверсии +43%</li>
+            </ul>
+          </article>
+
+          <article class="project-card">
+            <div class="card-top">
+              <span class="chip">Mobility</span>
+              <span class="chip ghost">2024</span>
+            </div>
+            <h3>PulseRide</h3>
+            <p>
+              Сервис микромобильности с автономным парком. Реальное время, цифровые
+              двойники, панель оператора.
+            </p>
+            <ul>
+              <li>Android + Jetpack Compose</li>
+              <li>Telemetry Mesh · Edge AI</li>
+              <li>Покрытие 7 городов</li>
+            </ul>
+          </article>
+
+          <article class="project-card">
+            <div class="card-top">
+              <span class="chip">Fintech</span>
+              <span class="chip ghost">2025</span>
+            </div>
+            <h3>FlowBank OS</h3>
+            <p>
+              Модульная банковская ОС с no-code-конструктором и встроенной ML-аналитикой для
+              SMB-сегмента.
+            </p>
+            <ul>
+              <li>Composable UI · WASM</li>
+              <li>CI/CD · Secure Design</li>
+              <li>Time-to-market −35%</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel split" id="about">
+        <div>
+          <p class="eyebrow">Манифест</p>
+          <h2>Кодирую ощущения</h2>
+          <p class="lead">
+            Строю продукты на стыке технологий и эмоций. Использую нейросети, WebGPU,
+            spatial UX и адаптивные pipeline'ы, чтобы каждая деталь выглядела и работала
+            безупречно.
+          </p>
+        </div>
+        <div class="stats">
+          <div>
+            <span>60+</span>
+            <p>спринтов в гибридных командах</p>
+          </div>
+          <div>
+            <span>4.9 ★</span>
+            <p>средняя оценка клиентов</p>
+          </div>
+          <div>
+            <span>10</span>
+            <p>городов с активными релизами</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel timeline">
+        <div class="panel-head">
+          <p class="eyebrow">Дорожная карта</p>
+          <h2>Фокус 2025</h2>
+        </div>
+        <ol>
+          <li>
+            <span>Q1</span>
+            Запуск генеративной дизайн-системы для e-commerce платформ.
+          </li>
+          <li>
+            <span>Q2</span>
+            Пилот цифровых двойников для автономных сервисов.
+          </li>
+          <li>
+            <span>Q3</span>
+            Переход Android-проектов на Compose Multiplatform + WebGPU.
+          </li>
+          <li>
+            <span>Q4</span>
+            Лаборатория пространственных интерфейсов и voice-first сценариев.
+          </li>
+        </ol>
+      </section>
+
+      <section class="panel game" id="game">
+        <div class="panel-head">
+          <p class="eyebrow">Микро-игра</p>
+          <h2>Поймай болты, избегай бомб</h2>
+        </div>
+        <p class="lead">
+          Управляй капсулой внизу — курсором или стрелками. Болт даёт +1 очко.
+          Бомба завершает сессию и мгновенно перезапускает раунд.
+        </p>
+        <div class="game-wrapper">
+          <canvas id="bolt-catcher" width="640" height="360" aria-label="Мини-игра"></canvas>
+          <div class="hud">
+            <div>Очки: <span id="score">0</span></div>
+            <div>Лучшая серия: <span id="best-score">0</span></div>
+            <button class="neon-btn ghost" id="restart-game">Рестарт</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer id="contact" class="shell footer">
+      <div>
+        <p class="eyebrow">Контакты</p>
+        <h2>Давайте строить будущее</h2>
+      </div>
+      <div class="footer-cta">
+        <a href="mailto:hello@goodeyka.com" class="neon-btn primary"
+          >hello@goodeyka.com</a
+        >
+        <a href="https://t.me/goodeyka" class="neon-btn ghost" target="_blank"
+          >Telegram</a
+        >
+      </div>
+      <p class="footer-note">© Goodeyka, 2025 · Постоянный бета-режим</p>
+    </footer>
+
+    <script src="script.js" defer></script>
+  </body>
+</html>
+
