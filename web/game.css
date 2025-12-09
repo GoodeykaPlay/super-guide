@@ -1,0 +1,252 @@
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
+
+:root {
+  font-family: "Press Start 2P", system-ui, sans-serif;
+  color-scheme: dark;
+  --bg: radial-gradient(circle at 20% 20%, #3c1aff, transparent 45%),
+    radial-gradient(circle at 80% 0%, #ff2ddc, transparent 40%), #030013;
+  --panel: rgba(10, 5, 32, 0.9);
+  --border: 2px solid rgba(255, 255, 255, 0.4);
+  --accent: #ff73f9;
+  --glow: rgba(255, 115, 249, 0.55);
+  --grid-color: rgba(255, 255, 255, 0.05);
+  --glass: rgba(255, 255, 255, 0.12);
+  --panel-grad: linear-gradient(135deg, rgba(79, 41, 189, 0.6), rgba(15, 7, 40, 0.8));
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: #f6f7fb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px;
+  position: relative;
+  overflow: hidden;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.02),
+      rgba(255, 255, 255, 0.02) 1px,
+      transparent 1px,
+      transparent 3px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.01),
+      rgba(255, 255, 255, 0.01) 1px,
+      transparent 1px,
+      transparent 4px
+    );
+  mix-blend-mode: screen;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.card {
+  width: min(820px, 100%);
+  background: var(--panel-grad);
+  border-radius: 32px;
+  border: var(--border);
+  padding: 40px;
+  box-shadow: 0 30px 120px rgba(0, 0, 0, 0.7), 0 0 40px var(--glow);
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before,
+.card::after {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border-radius: 24px;
+  border: 1px dashed rgba(255, 255, 255, 0.25);
+  filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.4));
+  pointer-events: none;
+}
+
+.card::after {
+  inset: auto;
+  height: 50%;
+  width: 60%;
+  right: -20%;
+  top: -15%;
+  border: none;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.18), transparent 65%);
+  filter: blur(20px);
+}
+
+.status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.tag {
+  padding: 6px 14px;
+  background: rgba(0, 0, 0, 0.55);
+  border-radius: 12px;
+  border: 1px solid var(--accent);
+  box-shadow: 0 0 12px var(--glow);
+}
+
+.milestone {
+  color: var(--accent);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  opacity: 0.25;
+  transform: translateY(6px) scale(0.95);
+  text-shadow: 0 0 12px var(--glow);
+}
+
+.milestone.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+h1 {
+  margin: 28px 0 14px;
+  letter-spacing: 0.12em;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  text-transform: uppercase;
+  color: #ffe6ff;
+  text-shadow: 0 0 18px rgba(255, 255, 255, 0.45), 0 0 32px var(--glow);
+}
+
+p {
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  color: rgba(246, 247, 251, 0.78);
+  margin: 0;
+}
+
+.canvas-wrap {
+  margin-top: 26px;
+  border-radius: 30px;
+  padding: 18px;
+  background: rgba(3, 0, 20, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: inset 0 0 25px rgba(255, 255, 255, 0.15), 0 0 25px rgba(0, 0, 0, 0.7);
+}
+
+canvas {
+  width: 100%;
+  border-radius: 22px;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  background: radial-gradient(circle at 50% 10%, rgba(255, 255, 255, 0.08), transparent 50%),
+    repeating-linear-gradient(
+      to right,
+      var(--grid-color),
+      var(--grid-color) 1px,
+      transparent 1px,
+      transparent 24px
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.03),
+      rgba(255, 255, 255, 0.03) 1px,
+      transparent 1px,
+      transparent 24px
+    ),
+    #040019;
+  display: block;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.6), 0 0 35px var(--glow);
+}
+
+.hud {
+  margin-top: 26px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 14px;
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+}
+
+.hud div {
+  background: rgba(0, 0, 0, 0.55);
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  padding: 14px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.hud div::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent 40%, rgba(255, 255, 255, 0.18), transparent 60%);
+  transform: translateX(-100%);
+  animation: sweep 4s linear infinite;
+  pointer-events: none;
+}
+
+.hud span {
+  display: block;
+  margin-top: 8px;
+  font-size: 1.1rem;
+  color: var(--accent);
+  text-shadow: 0 0 12px var(--glow);
+}
+
+button {
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.25), transparent 65%),
+    linear-gradient(120deg, rgba(255, 62, 190, 0.9), rgba(255, 136, 0, 0.9));
+  color: #0f0413;
+  padding: 12px 22px;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), 0 0 18px rgba(255, 136, 0, 0.6);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+button:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 16px 35px rgba(0, 0, 0, 0.55), 0 0 25px rgba(255, 136, 0, 0.9);
+}
+
+@media (max-width: 640px) {
+  body {
+    padding: 16px;
+  }
+
+  .card {
+    padding: 26px;
+  }
+
+  canvas {
+    height: 320px;
+  }
+}
+
+@keyframes sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+
+
