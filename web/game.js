@@ -1,11 +1,25 @@
+// Проверяем, что DOM загружен
 const canvas = document.getElementById("bolt-catcher");
-const ctx = canvas.getContext("2d");
+if (!canvas) {
+  console.error("Canvas not found!");
+}
+const ctx = canvas ? canvas.getContext("2d") : null;
 const scoreEl = document.getElementById("score");
 const bestEl = document.getElementById("best-score");
 const speedEl = document.getElementById("speed-mult");
 const milestoneBanner = document.getElementById("milestone-banner");
 const restartBtn = document.getElementById("restart-game");
 const shareBtn = document.getElementById("share-game");
+
+if (!canvas || !ctx) {
+  console.error("Canvas or context not available!");
+}
+
+// Игровые состояния и ввод
+let player = null;
+const keys = { left: false, right: false };
+let touchX = null; // Позиция касания для мобильных
+let isTouching = false; // Флаг активного касания
 
 // Адаптивный размер canvas для мобильных
 const BASE_WIDTH = 640;
@@ -15,7 +29,9 @@ let height = BASE_HEIGHT;
 let scale = 1;
 
 const resizeCanvas = () => {
+  if (!canvas || !ctx) return;
   const container = canvas.parentElement;
+  if (!container) return;
   // Компактный режим для Telegram
   const isTelegram = window.Telegram && window.Telegram.WebApp;
   const padding = isTelegram ? 16 : 24;
@@ -57,9 +73,33 @@ const resizeCanvas = () => {
   gridCacheHeight = 0;
 };
 
-// Инициализация размера
-resizeCanvas();
-initPlayer();
+// Инициализация после загрузки DOM
+const init = () => {
+  if (!canvas || !ctx) {
+    console.error("Canvas not ready, retrying...");
+    setTimeout(init, 100);
+    return;
+  }
+  
+  resizeCanvas();
+  initPlayer();
+  
+  // Инициализация игры
+  resetGame();
+  gameInitialized = true;
+  
+  // Запуск игрового цикла
+  requestAnimationFrame(loop);
+};
+
+// Ждём загрузки DOM
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  // DOM уже загружен
+  init();
+}
+
 window.addEventListener('resize', () => {
   resizeCanvas();
   if (player) {
@@ -74,12 +114,6 @@ window.addEventListener('orientationchange', () => {
     }
   }, 100);
 });
-
-// Инициализация игрока после установки размеров canvas
-let player = null;
-const keys = { left: false, right: false };
-let touchX = null; // Позиция касания для мобильных
-let isTouching = false; // Флаг активного касания
 
 // Инициализация игрока
 const initPlayer = () => {
@@ -169,12 +203,15 @@ const resetGame = () => {
   lastSpawn = performance.now();
   if (player) {
     player.x = width / 2 - player.w / 2;
+    player.y = height - 42;
   }
-  scoreEl.textContent = score;
+  if (scoreEl) scoreEl.textContent = score;
   flashTimer = 0;
   screenShake = 0;
   triggerMilestone(0);
   updateSpeedMultiplier();
+  // Сразу спавним первый предмет
+  spawnItem();
 };
 
 const catchItem = (item) => {
@@ -247,12 +284,14 @@ let gridCacheWidth = 0;
 let gridCacheHeight = 0;
 
 const drawGrid = () => {
+  if (!ctx) return;
   // Пересоздаём кэш если размеры изменились
   if (!gridCache || gridCacheWidth !== width || gridCacheHeight !== height) {
     const tempCanvas = document.createElement('canvas');
     tempCanvas.width = width;
     tempCanvas.height = height;
     const tempCtx = tempCanvas.getContext('2d');
+    if (!tempCtx) return;
     tempCtx.strokeStyle = "rgba(255,255,255,0.05)";
     tempCtx.lineWidth = 1;
     for (let x = 0; x < width; x += 40) {
@@ -272,7 +311,9 @@ const drawGrid = () => {
     gridCacheHeight = height;
   }
   // Рисуем кэшированную сетку
-  ctx.drawImage(gridCache, 0, 0);
+  if (gridCache) {
+    ctx.drawImage(gridCache, 0, 0);
+  }
 };
 
 const drawRoundedRect = (x, y, width, height, radius) => {
@@ -359,6 +400,7 @@ const drawBolt = (item) => {
 };
 
 const drawBomb = (item) => {
+  if (!ctx) return;
   const radius = item.r + 2;
   const flicker = (Math.sin(performance.now() / 90 + item.x * 0.15) + 1) / 2;
   const rotation = item.angle || 0;
@@ -440,6 +482,7 @@ const drawBomb = (item) => {
 };
 
 const draw = () => {
+  if (!ctx || !canvas) return;
   ctx.clearRect(0, 0, width, height);
   ctx.save();
   if (screenShake > 0) {
@@ -486,8 +529,14 @@ const draw = () => {
 
 let lastTime = performance.now();
 let frameSkip = 0;
+let gameInitialized = false;
 
 const loop = (time) => {
+  if (!ctx || !canvas || !gameInitialized) {
+    requestAnimationFrame(loop);
+    return;
+  }
+  
   const delta = time - lastTime;
   lastTime = time;
   
@@ -518,7 +567,6 @@ const loop = (time) => {
   draw();
   requestAnimationFrame(loop);
 };
-requestAnimationFrame(loop);
 
 // Функция для обновления позиции игрока по координатам
 const updatePlayerPosition = (clientX) => {
@@ -618,14 +666,7 @@ shareBtn.addEventListener("click", () => {
   }
 });
 
-// Инициализация игры
-if (player) {
-  resetGame();
-} else {
-  // Если игрок ещё не инициализирован, инициализируем его
-  initPlayer();
-  resetGame();
-}
+// Инициализация игры будет вызвана в функции init()
 
 
 
