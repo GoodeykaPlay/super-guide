@@ -7,10 +7,89 @@ const milestoneBanner = document.getElementById("milestone-banner");
 const restartBtn = document.getElementById("restart-game");
 const shareBtn = document.getElementById("share-game");
 
-const width = canvas.width;
-const height = canvas.height;
-const player = { x: width / 2 - 40, y: height - 42, w: 80, h: 16, speed: 6 };
+// Адаптивный размер canvas для мобильных
+const BASE_WIDTH = 640;
+const BASE_HEIGHT = 360;
+let width = BASE_WIDTH;
+let height = BASE_HEIGHT;
+let scale = 1;
+
+const resizeCanvas = () => {
+  const container = canvas.parentElement;
+  // Компактный режим для Telegram
+  const isTelegram = window.Telegram && window.Telegram.WebApp;
+  const padding = isTelegram ? 16 : 24;
+  const containerWidth = container.clientWidth - padding;
+  const maxHeight = isTelegram ? window.innerHeight * 0.6 : Math.min(window.innerHeight * 0.5, 400);
+  const containerHeight = maxHeight;
+  
+  // Сохраняем соотношение сторон 16:9
+  const aspectRatio = BASE_WIDTH / BASE_HEIGHT;
+  let displayWidth = containerWidth;
+  let displayHeight = displayWidth / aspectRatio;
+  
+  // Если высота слишком большая, ограничиваем по высоте
+  if (displayHeight > containerHeight) {
+    displayHeight = containerHeight;
+    displayWidth = displayHeight * aspectRatio;
+  }
+  
+  // Устанавливаем CSS размер (отображаемый размер)
+  canvas.style.width = displayWidth + 'px';
+  canvas.style.height = displayHeight + 'px';
+  
+  // Внутренние размеры canvas остаются фиксированными для правильной отрисовки
+  canvas.width = BASE_WIDTH;
+  canvas.height = BASE_HEIGHT;
+  
+  // Вычисляем масштаб для преобразования координат
+  scale = displayWidth / BASE_WIDTH;
+  width = BASE_WIDTH;
+  height = BASE_HEIGHT;
+  
+  // Обновляем позицию игрока при изменении размера
+  if (player) {
+    player.x = Math.min(player.x, width - player.w);
+  }
+  // Пересоздаём кэш сетки при изменении размера
+  gridCache = null;
+  gridCacheWidth = 0;
+  gridCacheHeight = 0;
+};
+
+// Инициализация размера
+resizeCanvas();
+initPlayer();
+window.addEventListener('resize', () => {
+  resizeCanvas();
+  if (player) {
+    player.x = Math.min(player.x, width - player.w);
+  }
+});
+window.addEventListener('orientationchange', () => {
+  setTimeout(() => {
+    resizeCanvas();
+    if (player) {
+      player.x = Math.min(player.x, width - player.w);
+    }
+  }, 100);
+});
+
+// Инициализация игрока после установки размеров canvas
+let player = null;
 const keys = { left: false, right: false };
+let touchX = null; // Позиция касания для мобильных
+let isTouching = false; // Флаг активного касания
+
+// Инициализация игрока
+const initPlayer = () => {
+  if (!player) {
+    player = { x: width / 2 - 40, y: height - 42, w: 80, h: 16, speed: 6 };
+  } else {
+    player.x = width / 2 - 40;
+    player.y = height - 42;
+  }
+};
 const milestoneColors = ["#50e3c2", "#4cc6ff", "#ff6ec7", "#ffd166", "#8cff80", "#c79cff"];
 
 let items = [];
@@ -88,7 +167,9 @@ const resetGame = () => {
   score = 0;
   running = true;
   lastSpawn = performance.now();
-  player.x = width / 2 - player.w / 2;
+  if (player) {
+    player.x = width / 2 - player.w / 2;
+  }
   scoreEl.textContent = score;
   flashTimer = 0;
   screenShake = 0;
@@ -160,21 +241,38 @@ const updateItems = (delta) => {
   items = items.filter((item) => item.y < height + 40);
 };
 
+// Кэшируем сетку для оптимизации
+let gridCache = null;
+let gridCacheWidth = 0;
+let gridCacheHeight = 0;
+
 const drawGrid = () => {
-  ctx.strokeStyle = "rgba(255,255,255,0.05)";
-  ctx.lineWidth = 1;
-  for (let x = 0; x < width; x += 40) {
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, height);
-    ctx.stroke();
+  // Пересоздаём кэш если размеры изменились
+  if (!gridCache || gridCacheWidth !== width || gridCacheHeight !== height) {
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = width;
+    tempCanvas.height = height;
+    const tempCtx = tempCanvas.getContext('2d');
+    tempCtx.strokeStyle = "rgba(255,255,255,0.05)";
+    tempCtx.lineWidth = 1;
+    for (let x = 0; x < width; x += 40) {
+      tempCtx.beginPath();
+      tempCtx.moveTo(x, 0);
+      tempCtx.lineTo(x, height);
+      tempCtx.stroke();
+    }
+    for (let y = 0; y < height; y += 40) {
+      tempCtx.beginPath();
+      tempCtx.moveTo(0, y);
+      tempCtx.lineTo(width, y);
+      tempCtx.stroke();
+    }
+    gridCache = tempCanvas;
+    gridCacheWidth = width;
+    gridCacheHeight = height;
   }
-  for (let y = 0; y < height; y += 40) {
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(width, y);
-    ctx.stroke();
-  }
+  // Рисуем кэшированную сетку
+  ctx.drawImage(gridCache, 0, 0);
 };
 
 const drawRoundedRect = (x, y, width, height, radius) => {
@@ -352,9 +450,13 @@ const draw = () => {
   }
   drawGrid();
 
-  ctx.fillStyle = "rgba(80,227,194,0.9)";
-  ctx.fillRect(player.x, player.y, player.w, player.h);
+  // Рисуем игрока
+  if (player) {
+    ctx.fillStyle = "rgba(80,227,194,0.9)";
+    ctx.fillRect(player.x, player.y, player.w, player.h);
+  }
 
+  // Рисуем предметы
   items.forEach((item) => {
     if (item.type === "bomb") {
       drawBomb(item);
@@ -383,18 +485,34 @@ const draw = () => {
 };
 
 let lastTime = performance.now();
+let frameSkip = 0;
+
 const loop = (time) => {
   const delta = time - lastTime;
   lastTime = time;
+  
+  // Оптимизация: пропускаем кадры на медленных устройствах
+  frameSkip++;
+  if (delta > 50 && frameSkip % 2 === 0) {
+    requestAnimationFrame(loop);
+    return;
+  }
+  
+  // Ограничение delta для стабильности
+  const cappedDelta = Math.min(delta, 50);
 
   if (running) {
     if (time - lastSpawn > Math.max(400, 900 - score * 6)) {
       spawnItem();
       lastSpawn = time;
     }
-    if (keys.left) player.x = Math.max(0, player.x - player.speed);
-    if (keys.right) player.x = Math.min(width - player.w, player.x + player.speed);
-    updateItems(delta);
+    // Управление клавиатурой (только если не касаемся экрана)
+    if (!isTouching && player) {
+      if (keys.left) player.x = Math.max(0, player.x - player.speed);
+      if (keys.right) player.x = Math.min(width - player.w, player.x + player.speed);
+    }
+    // При касании позиция обновляется напрямую в обработчиках событий
+    updateItems(cappedDelta);
   }
 
   draw();
@@ -402,11 +520,80 @@ const loop = (time) => {
 };
 requestAnimationFrame(loop);
 
-canvas.addEventListener("mousemove", (e) => {
+// Функция для обновления позиции игрока по координатам
+const updatePlayerPosition = (clientX) => {
+  if (!player) return;
   const rect = canvas.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  player.x = Math.min(Math.max(x - player.w / 2, 0), width - player.w);
+  // Преобразуем координаты экрана в координаты canvas
+  const canvasX = (clientX - rect.left) / scale;
+  // Центрируем игрока на позиции касания
+  const targetX = canvasX - player.w / 2;
+  // Ограничиваем границами игрового поля (полное перемещение по всему полю)
+  player.x = Math.max(0, Math.min(targetX, width - player.w));
+};
+
+// Управление мышью (для десктопа)
+canvas.addEventListener("mousedown", (e) => {
+  e.preventDefault();
+  updatePlayerPosition(e.clientX);
+  canvas.addEventListener("mousemove", handleMouseMove);
+  canvas.addEventListener("mouseup", handleMouseUp);
+  canvas.addEventListener("mouseleave", handleMouseUp);
 });
+
+const handleMouseMove = (e) => {
+  e.preventDefault();
+  updatePlayerPosition(e.clientX);
+};
+
+const handleMouseUp = (e) => {
+  e.preventDefault();
+  canvas.removeEventListener("mousemove", handleMouseMove);
+  canvas.removeEventListener("mouseup", handleMouseUp);
+  canvas.removeEventListener("mouseleave", handleMouseUp);
+};
+
+// Сенсорное управление (для мобильных) - улучшенная версия
+canvas.addEventListener("touchstart", (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  isTouching = true;
+  const touch = e.touches[0];
+  updatePlayerPosition(touch.clientX);
+  touchX = touch.clientX;
+}, { passive: false });
+
+canvas.addEventListener("touchmove", (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  if (e.touches.length > 0) {
+    const touch = e.touches[0];
+    // Мгновенное обновление позиции для плавного движения
+    updatePlayerPosition(touch.clientX);
+    touchX = touch.clientX;
+  }
+}, { passive: false });
+
+canvas.addEventListener("touchend", (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  isTouching = false;
+  touchX = null;
+}, { passive: false });
+
+canvas.addEventListener("touchcancel", (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  isTouching = false;
+  touchX = null;
+}, { passive: false });
+
+// Предотвращение скролла и масштабирования при касании canvas
+document.addEventListener("touchmove", (e) => {
+  if (e.target === canvas || canvas.contains(e.target)) {
+    e.preventDefault();
+  }
+}, { passive: false });
 
 window.addEventListener("keydown", (e) => {
   if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a") keys.left = true;
@@ -431,8 +618,14 @@ shareBtn.addEventListener("click", () => {
   }
 });
 
-triggerMilestone(0);
-updateSpeedMultiplier();
+// Инициализация игры
+if (player) {
+  resetGame();
+} else {
+  // Если игрок ещё не инициализирован, инициализируем его
+  initPlayer();
+  resetGame();
+}
 
 
 

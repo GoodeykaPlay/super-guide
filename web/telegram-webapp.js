@@ -5,6 +5,9 @@ if (window.Telegram && window.Telegram.WebApp) {
   tg.ready();
   tg.expand();
   
+  // Включаем компактный режим для Telegram
+  document.body.classList.add('telegram-compact');
+  
   // Настройка темы
   const setTheme = () => {
     const colorScheme = tg.colorScheme || 'light';
@@ -55,25 +58,28 @@ if (window.Telegram && window.Telegram.WebApp) {
     }
   };
   
-  // Функция для поделиться игрой с друзьями
+  // Функция для поделиться ботом с друзьями
   window.shareGame = () => {
+    const botUrl = 'https://t.me/BolBOOM_bot';
+    const shareText = '🎮 Попробуй крутую игру! Поймай болты, избегай бомбы!';
+    
     if (tg.shareUrl) {
-      // Используем встроенную функцию Telegram для поделиться
-      tg.shareUrl('https://t.me/share/url?url=' + encodeURIComponent(window.location.href) + '&text=' + encodeURIComponent('🎮 Попробуй эту крутую игру! Поймай болты, избегай бомбы!'));
+      // Используем встроенную функцию Telegram для поделиться ссылкой на бота
+      tg.shareUrl('https://t.me/share/url?url=' + encodeURIComponent(botUrl) + '&text=' + encodeURIComponent(shareText));
     } else if (tg.openTelegramLink) {
       // Альтернативный способ через открытие ссылки
-      tg.openTelegramLink('https://t.me/share/url?url=' + encodeURIComponent(window.location.href) + '&text=' + encodeURIComponent('🎮 Попробуй эту крутую игру!'));
+      tg.openTelegramLink('https://t.me/share/url?url=' + encodeURIComponent(botUrl) + '&text=' + encodeURIComponent(shareText));
     } else if (navigator.share) {
       // Используем Web Share API если доступен
       navigator.share({
-        title: 'Goodeyka Bolt Catcher',
-        text: '🎮 Попробуй эту крутую игру! Поймай болты, избегай бомбы!',
-        url: window.location.href
+        title: 'BolBOOM Bot',
+        text: shareText,
+        url: botUrl
       });
     } else {
-      // Fallback: копируем ссылку в буфер обмена
-      navigator.clipboard.writeText(window.location.href).then(() => {
-        tg.showAlert('Ссылка скопирована! Отправь её друзьям в Telegram.');
+      // Fallback: копируем ссылку на бота в буфер обмена
+      navigator.clipboard.writeText(botUrl).then(() => {
+        tg.showAlert('Ссылка на бота скопирована! Отправь её друзьям в Telegram.');
       });
     }
   };
@@ -97,15 +103,18 @@ if (window.Telegram && window.Telegram.WebApp) {
   window.hideMainButton = () => {};
   window.vibrate = () => {};
   window.shareGame = () => {
+    const botUrl = 'https://t.me/BolBOOM_bot';
+    const shareText = '🎮 Попробуй крутую игру! Поймай болты, избегай бомбы!';
+    
     if (navigator.share) {
       navigator.share({
-        title: 'Goodeyka Bolt Catcher',
-        text: '🎮 Попробуй эту крутую игру! Поймай болты, избегай бомбы!',
-        url: window.location.href
+        title: 'BolBOOM Bot',
+        text: shareText,
+        url: botUrl
       });
     } else {
-      navigator.clipboard.writeText(window.location.href).then(() => {
-        alert('Ссылка скопирована! Отправь её друзьям.');
+      navigator.clipboard.writeText(botUrl).then(() => {
+        alert('Ссылка на бота скопирована! Отправь её друзьям.');
       });
     }
   };
